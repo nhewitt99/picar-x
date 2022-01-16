@@ -3,7 +3,11 @@ import time
 import os
 import re
 import math
-from pin import Pin
+
+try:
+    from hardware.pin import Pin
+except ImportError:
+    from software.pin import Pin
 
 mcu_reset = mcu_reset = Pin("MCURST")
 

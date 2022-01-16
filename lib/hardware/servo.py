@@ -1,5 +1,4 @@
-# from .basic import _Basic_class
-import time
+from .pwm import PWM
 
 class Servo(object):
     MAX_PW = 2500
@@ -15,7 +14,7 @@ class Servo(object):
 
     def map(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-        
+
     # angle ranges -90 to 90 degrees
     def angle(self, angle):
         if not (isinstance(angle, int) or isinstance(angle, float)):
@@ -33,7 +32,6 @@ class Servo(object):
         self.pwm.pulse_width(value)
 
 def test():
-    from ezblock import PWM
     print("Test")
     p = PWM("P0")
     s0 = Servo(p)

@@ -1,11 +1,25 @@
-# from ezblock import Servo,PWM,fileDB,Pin,ADC
-from servo import Servo 
-from pwm import PWM
-from pin import Pin
-from adc import ADC
-from filedb import fileDB
 import time
+import atexit
+import logging
+from logdecorator import log_on_start, log_on_end, log_on_error
+logging.basicConfig(level=logging.DEBUG, datefmt ="%H:%M:%S")
 
+# use rpi as test to import sim or hardware
+try:
+    import RPi.GPIO
+    from hardware.pwm import PWM
+    from hardware.pin import Pin
+    from hardware.adc import ADC
+    from hardware.servo import Servo
+except (ImportError, RuntimeError):
+    print('Could not import one or more hardware classes. Defaulting to simulation classes. TODO: dump stack trace')
+    from simulation.pwm import PWM
+    from simulation.pin import Pin
+    from simulation.adc import ADC
+    from simulation.servo import Servo
+    # import simulation
+
+from filedb import fileDB
 
 
 class Picarx(object):
@@ -13,11 +27,17 @@ class Picarx(object):
     PRESCALER = 10
     TIMEOUT = 0.02
 
+    @log_on_start(logging.DEBUG, 'Initializing a Picarx...')
+    @log_on_error(logging.ERROR, 'Unexpected error in Picarx init!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Initialized a Picarx.')
     def __init__(self):
         self.dir_servo_pin = Servo(PWM('P2'))
         self.camera_servo_pin1 = Servo(PWM('P0'))
         self.camera_servo_pin2 = Servo(PWM('P1'))
-        self.config_flie = fileDB('/home/pi/.config')
+
+#        self.config_flie = fileDB('/home/pi/.config')
+        self.config_flie = fileDB('/home/nhewitt/.picarx_config')
+
         self.dir_cal_value = int(self.config_flie.get("picarx_dir_servo", default_value=0))
         self.cam_cal_value_1 = int(self.config_flie.get("picarx_cam1_servo", default_value=0))
         self.cam_cal_value_2 = int(self.config_flie.get("picarx_cam2_servo", default_value=0))
@@ -41,13 +61,17 @@ class Picarx(object):
         self.cali_dir_value = [int(i.strip()) for i in self.cali_dir_value.strip("[]").split(",")]
         self.cali_speed_value = [0, 0]
         self.dir_current_angle = 0
-        #初始化PWM引脚
+
         for pin in self.motor_speed_pins:
             pin.period(self.PERIOD)
             pin.prescaler(self.PRESCALER)
 
+        atexit.register(self.stop)
 
 
+    @log_on_start(logging.DEBUG, 'Setting motor {motor} to speed {speed}...')
+    @log_on_error(logging.ERROR, 'Unexpected error when setting motor speed!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Set motor {motor} to speed {speed}.')
     def set_motor_speed(self,motor,speed):
         # global cali_speed_value,cali_dir_value
         motor -= 1
@@ -84,7 +108,6 @@ class Picarx(object):
         if value == 1:
             self.cali_dir_value[motor] = -1 * self.cali_dir_value[motor]
         self.config_flie.set("picarx_dir_motor", self.cali_dir_value)
-
 
     def dir_servo_angle_calibration(self,value):
         # global dir_cal_value
@@ -139,6 +162,9 @@ class Picarx(object):
         self.set_motor_speed(1, speed)
         self.set_motor_speed(2, speed) 
 
+    @log_on_start(logging.DEBUG, 'Starting to move backward at speed {speed}...')
+    @log_on_error(logging.ERROR, 'Unexpected error moving backward!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Moving backward at speed {speed}.')
     def backward(self,speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -158,6 +184,9 @@ class Picarx(object):
             self.set_motor_speed(1, -1*speed)
             self.set_motor_speed(2, speed)  
 
+    @log_on_start(logging.DEBUG, 'Starting to move forward at speed {speed}...')
+    @log_on_error(logging.ERROR, 'Unexpected error moving forward!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Moving forward at speed {speed}.')
     def forward(self,speed):
         current_angle = self.dir_current_angle
         if current_angle != 0:
@@ -175,12 +204,63 @@ class Picarx(object):
                 self.set_motor_speed(2, -1*speed )
         else:
             self.set_motor_speed(1, speed)
-            self.set_motor_speed(2, -1*speed)                  
+            self.set_motor_speed(2, -1*speed)
 
+    @log_on_start(logging.DEBUG, 'Stopping...')
+    @log_on_error(logging.ERROR, 'Unexpected error while stopping!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Stopped.')
     def stop(self):
         self.set_motor_speed(1, 0)
         self.set_motor_speed(2, 0)
 
+    @log_on_start(logging.DEBUG, 'Starting to move at speed {speed} with angle {angle}...')
+    @log_on_error(logging.ERROR, 'Unexpected error moving!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Moving at speed {speed} with angle {angle}.')
+    def move(self, speed, angle):
+        self.set_dir_servo_angle(angle)
+        if speed >= 0:
+            self.forward(speed)
+        else:
+            self.backward(-speed)
+
+    @log_on_start(logging.DEBUG, 'Parallel parking...')
+    @log_on_error(logging.ERROR, 'Unexpected error parking!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Parked.')
+    def parallel_park(self, speed, left=True):
+        # Reverse only
+        speed = -abs(speed)
+
+        # First turn left or turn right
+        angle = 60 if left else -60
+
+        self.move(speed, angle)
+        time.sleep(1.5)
+        self.stop()
+        self.move(speed, -angle)
+        time.sleep(1.5)
+        self.stop()
+
+    @log_on_start(logging.DEBUG, 'Starting k-turn...')
+    @log_on_error(logging.ERROR, 'Unexpected error turning!', reraise=True)
+    @log_on_end(logging.DEBUG, 'Finished k-turn.')
+    def k_turn(self, speed, left=True):
+        speed = abs(speed)
+        angle = 60 if left else -60
+
+        self.move(speed, angle)
+        time.sleep(0.5)
+        self.stop()
+        self.move(speed, -angle)
+        time.sleep(1.5)
+        self.stop()
+        self.move(-speed, angle)
+        time.sleep(2.0)
+        self.stop()
+
+    def forward_demo(self, speed):
+        self.move(speed, 0)
+        time.sleep(1.0)
+        self.stop()
 
     def Get_distance(self):
         timeout=0.01
@@ -209,24 +289,34 @@ class Picarx(object):
         return cm
 
 
+def print_options():
+    print('Please enter one of the following:')
+    print('1: Drive forward')
+    print('2: Parallel park')
+    print('3: K-turn')
+    print('Q: Exit')
+
+
 if __name__ == "__main__":
     px = Picarx()
-    px.forward(50)
-    time.sleep(1)
-    px.stop()
-    # set_dir_servo_angle(0)
-    # time.sleep(1)
-    # self.set_motor_speed(1, 1)
-    # self.set_motor_speed(2, 1)
-    # camera_servo_pin.angle(0)
-# set_camera_servo1_angle(cam_cal_value_1)
-# set_camera_servo2_angle(cam_cal_value_2)
-# set_dir_servo_angle(dir_cal_value)
 
-# if __name__ == "__main__":
-#     try:
-#         # dir_servo_angle_calibration(-10) 
-#         while 1:
-#             test()
-#     finally: 
-#         stop()
+    print_options()
+
+    options = {1: px.forward_demo,
+               2: px.parallel_park,
+               3: px.k_turn}
+    speed = 50
+
+    while True:
+        print('Enter your choice:')
+        choice = input()
+
+        if choice in ['q', 'Q', 'exit', 'quit']:
+            print('Exiting!')
+            break
+        elif int(choice) in options.keys():
+            print(f'Executing option {choice}!\n')
+            options[int(choice)](speed)
+        else:
+            print('Invalid choice!\n')
+            print_options()

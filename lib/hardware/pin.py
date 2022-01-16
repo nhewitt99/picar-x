@@ -78,14 +78,17 @@ class Pin(object):
 
         if len(value) > 0:
             pin = value[0]
+
         if len(value) > 1:
             mode = value[1]
         else:
             mode = None
+
         if len(value) > 2:
             setup = value[2]
         else:
             setup = None
+
         if isinstance(pin, str):
             try:
                 self._board_name = pin
@@ -97,6 +100,7 @@ class Pin(object):
             self._pin = pin
         else:
             self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+
         self._value = 0
         self.init(mode, pull=setup)
         # self._info("Pin init finished.")
