@@ -11,6 +11,8 @@ try:
     from hardware.pin import Pin
     from hardware.adc import ADC
     from hardware.servo import Servo
+    from utils import reset_mcu
+    reset_mcu()
 except (ImportError, RuntimeError):
     print('Could not import one or more hardware classes. Defaulting to simulation classes. TODO: dump stack trace')
     from simulation.pwm import PWM
@@ -236,6 +238,7 @@ class Picarx(object):
         self.move(speed, angle)
         time.sleep(1.5)
         self.stop()
+        time.sleep(0.5)
         self.move(speed, -angle)
         time.sleep(1.5)
         self.stop()
@@ -250,11 +253,13 @@ class Picarx(object):
         self.move(speed, angle)
         time.sleep(0.5)
         self.stop()
+        time.sleep(0.5)
         self.move(speed, -angle)
         time.sleep(1.5)
         self.stop()
+        time.sleep(0.5)
         self.move(-speed, angle)
-        time.sleep(2.0)
+        time.sleep(1.5)
         self.stop()
 
     def forward_demo(self, speed):
@@ -305,7 +310,7 @@ if __name__ == "__main__":
     options = {1: px.forward_demo,
                2: px.parallel_park,
                3: px.k_turn}
-    speed = 50
+    speed = 0.5
 
     while True:
         print('Enter your choice:')
