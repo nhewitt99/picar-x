@@ -1,4 +1,4 @@
-from adc import ADC
+from .adc import ADC
 
 
 class Sensor(object):

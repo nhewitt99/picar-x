@@ -1,4 +1,4 @@
-from sensor import Sensor
+from .sensor import Sensor
 from utils import reset_mcu
 reset_mcu()
 
@@ -16,6 +16,10 @@ from math import exp
     TILE:
         means: 1537.02 1547.79 1526.54
         stds:     2.44    2.97    3.08
+    CARPET:
+        1400ish
+    ELECTRICAL_TAPE:
+        700ish
 '''
 
 def sigmoid(alpha):
@@ -64,12 +68,12 @@ if __name__=='__main__':
 #    print(ls.direction([0.1, 0.5, 0.5]))
 #    print(ls.direction([1.0, 0.1, 0.1]))
 
-#    n = 10000
-#    vals = np.zeros((n, 3))
-#
-#    for i in tqdm(range(n)):
-#        vals[i,:] = ls.poll_raw()
-#
-#    np.set_printoptions(precision=2)
-#    print(f'Means: {np.mean(vals, axis=0)}')
-#    print(f'Stds:  {np.std(vals, axis=0)}')
+    n = 1000
+    vals = np.zeros((n, 3))
+
+    for i in tqdm(range(n)):
+        vals[i,:] = ls.poll_raw()
+
+    np.set_printoptions(precision=2)
+    print(f'Means: {np.mean(vals, axis=0)}')
+    print(f'Stds:  {np.std(vals, axis=0)}')
