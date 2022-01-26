@@ -10,16 +10,16 @@ class Pin(object):
     PULL_NONE = None
 
     _dict_1 = {
-        "D0":  17,
-        "D1":  18,
-        "D2":  27,
-        "D3":  22,
-        "D4":  23,
-        "D5":  24,
-        "D6":  25,
-        "D7":  4,
-        "D8":  5,
-        "D9":  6,
+        "D0": 17,
+        "D1": 18,
+        "D2": 27,
+        "D3": 22,
+        "D4": 23,
+        "D5": 24,
+        "D6": 25,
+        "D7": 4,
+        "D8": 5,
+        "D9": 6,
         "D10": 12,
         "D11": 13,
         "D12": 19,
@@ -27,7 +27,7 @@ class Pin(object):
         "D14": 26,
         "D15": 20,
         "D16": 21,
-        "SW":  19,
+        "SW": 19,
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
@@ -62,16 +62,16 @@ class Pin(object):
                 self._pin = self._dict[pin]
             except Exception as e:
                 print(e)
-                self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+                self._error("Pin should be in %s, not %s" % (self._dict.keys(), pin))
         elif isinstance(pin, int):
             self._pin = pin
         else:
-            self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+            self._error("Pin should be in %s, not %s" % (self._dict.keys(), pin))
 
         self._value = 0
         self.init(mode, pull=setup)
 
-        print(f'Dummy pin: set up {value}')
+        print(f"Dummy pin: set up {value}")
 
     def _error(self, str):
         raise Exception(str)
@@ -122,10 +122,10 @@ class Pin(object):
 
     def irq(self, handler=None, trigger=None, bouncetime=200):
         self.mode(self.IN)
-        print('Dummy pin: set interrupt (but not really!)')
+        print("Dummy pin: set interrupt (but not really!)")
 
     def name(self):
-        return "GPIO%s"%self._pin
+        return "GPIO%s" % self._pin
 
     def names(self):
         return [self.name, self._board_name]
@@ -139,9 +139,9 @@ class Pin(object):
         GPIO24 = 24
         GPIO25 = 25
         GPIO26 = 26
-        GPIO4  = 4
-        GPIO5  = 5
-        GPIO6  = 6
+        GPIO4 = 4
+        GPIO5 = 5
+        GPIO6 = 6
         GPIO12 = 12
         GPIO13 = 13
         GPIO19 = 19
@@ -156,8 +156,9 @@ class Pin(object):
 
 if __name__ == "__main__":
     import time
+
     mcu_reset = Pin("MCURST")
     mcu_reset.off()
     time.sleep(0.001)
-    mcu_reset.on() 
-    time.sleep(0.01) 
+    mcu_reset.on()
+    time.sleep(0.01)

@@ -1,4 +1,4 @@
-from .adc import ADC
+from picar.interfaces import ADC
 
 
 class Sensor(object):
@@ -7,4 +7,3 @@ class Sensor(object):
 
     def poll_raw(self):
         return [chn.read() for chn in self.channels]
-

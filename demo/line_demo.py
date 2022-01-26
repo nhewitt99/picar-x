@@ -1,7 +1,7 @@
-from picarx import Picarx
-from hardware.line_sensor import LineSensor
-from hardware.line_controller import LineController
-from utils import reset_mcu
+from picar import Picarx
+from picar.sensor.line_sensor import LineSensor
+from picar.controller.line_controller import LineController
+from picar.utils import reset_mcu
 reset_mcu()
 
 from time import sleep

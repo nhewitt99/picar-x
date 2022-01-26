@@ -1,9 +1,10 @@
 # from .basic import _Basic_class
 from smbus import SMBus
 
+
 class I2C(object):
     MASTER = 0
-    SLAVE  = 1
+    SLAVE = 1
     RETRY = 5
 
     def __init__(self, *args, **kargs):
@@ -12,16 +13,16 @@ class I2C(object):
 
     def _i2c_write_byte(self, addr, data):
         pass
-    
+
     def _i2c_write_byte_data(self, addr, reg, data):
         pass
-    
+
     def _i2c_write_word_data(self, addr, reg, data):
         pass
-    
+
     def _i2c_write_i2c_block_data(self, addr, reg, data):
         pass
-    
+
     def _i2c_read_byte(self, addr):
         return bytes(0)
 
@@ -52,25 +53,29 @@ class I2C(object):
             result[i] = self._i2c_read_byte(addr)
         return result
 
-    def mem_write(self, data, addr, memaddr, timeout=5000, addr_size=8): #memaddr match to chn
+    def mem_write(
+        self, data, addr, memaddr, timeout=5000, addr_size=8
+    ):  # memaddr match to chn
         if isinstance(data, bytearray):
             data_all = list(data)
         elif isinstance(data, list):
             data_all = data
         elif isinstance(data, int):
             data_all = []
-            data = "%x"%data
+            data = "%x" % data
             if len(data) % 2 == 1:
                 data = "0" + data
             # print(data)
             for i in range(0, len(data), 2):
                 # print(data[i:i+2])
-                data_all.append(int(data[i:i+2], 16))
+                data_all.append(int(data[i : i + 2], 16))
         else:
-            raise ValueError("memery write require arguement of bytearray, list, int less than 0xFF")
+            raise ValueError(
+                "memery write require arguement of bytearray, list, int less than 0xFF"
+            )
         # print(data_all)
         self._i2c_write_i2c_block_data(addr, memaddr, data_all)
-    
+
     def mem_read(self, data, addr, memaddr, timeout=5000, addr_size=8):
         if isinstance(data, int):
             num = data
@@ -80,11 +85,10 @@ class I2C(object):
             return False
         result = bytearray(self._i2c_read_i2c_block_data(addr, memaddr, num))
         return result
-    
+
     def readfrom_mem_into(self, addr, memaddr, buf):
         buf = self.mem_read(len(buf), addr, memaddr)
         return buf
-    
+
     def writeto_mem(self, addr, memaddr, data):
         self.mem_write(data, addr, memaddr)
-

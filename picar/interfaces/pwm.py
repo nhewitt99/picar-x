@@ -1,11 +1,8 @@
-import math
+import smbus, math
 from picar.core import I2C
 
-timer = [
-    {
-        "arr": 0
-    }
-] * 4
+timer = [{"arr": 0}] * 4
+
 
 class PWM(I2C):
     REG_CHN = 0x20
@@ -24,7 +21,9 @@ class PWM(I2C):
             if channel.startswith("P"):
                 channel = int(channel[1:])
             else:
-                raise ValueError("PWM channel should be between [P1, P14], not {0}".format(channel))
+                raise ValueError(
+                    "PWM channel should be between [P1, P14], not {0}".format(channel)
+                )
         try:
             self.send(0x2C, self.ADDR)
             self.send(0, self.ADDR)
@@ -35,18 +34,14 @@ class PWM(I2C):
         self.debug = debug
         # self._debug("PWM address: {:02X}".format(self.ADDR))
         self.channel = channel
-        self.timer = int(channel/4)
-#        self.bus = smbus.SMBus(1)
+        self.timer = int(channel / 4)
         self._pulse_width = 0
         self._freq = 50
         self.freq(50)
 
-    def send(self, data, addr):
-        print(f'PWM dummy: sent {data} to {addr}')
-
     def i2c_write(self, reg, value):
         value_h = value >> 8
-        value_l = value & 0xff
+        value_l = value & 0xFF
         # self._debug("i2c write: [0x%02X, 0x%02X, 0x%02X, 0x%02X]"%(self.ADDR, reg, value_h, value_l))
         self.send([reg, value_h, value_l], self.ADDR)
 
@@ -60,16 +55,16 @@ class PWM(I2C):
             # accuracy list
             result_acy = []
             # middle value for equal arr prescaler
-            st = int(math.sqrt(self.CLOCK/self._freq))
+            st = int(math.sqrt(self.CLOCK / self._freq))
             # get -5 value as start
             st -= 5
             # prevent negetive value
             if st <= 0:
                 st = 1
-            for psc in range(st,st+10):
-                arr = int(self.CLOCK/self._freq/psc)
+            for psc in range(st, st + 10):
+                arr = int(self.CLOCK / self._freq / psc)
                 result_ap.append([psc, arr])
-                result_acy.append(abs(self._freq-self.CLOCK/psc/arr))
+                result_acy.append(abs(self._freq - self.CLOCK / psc / arr))
             i = result_acy.index(min(result_acy))
             psc = result_ap[i][0]
             arr = result_ap[i][1]
@@ -118,6 +113,7 @@ class PWM(I2C):
 
 def test():
     import time
+
     p = PWM(0)
     # p.debug = 'debug'
     p.period(1000)
@@ -127,13 +123,14 @@ def test():
         for i in range(0, 4095, 10):
             p.pulse_width(i)
             print(i)
-            time.sleep(1/4095)
+            time.sleep(1 / 4095)
         time.sleep(1)
         for i in range(4095, 0, -10):
             p.pulse_width(i)
             print(i)
-            time.sleep(1/4095)
+            time.sleep(1 / 4095)
         time.sleep(1)
+
 
 def test2():
     p = PWM("P0")
@@ -141,5 +138,5 @@ def test2():
         p.pulse_width_percent(50)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test2()

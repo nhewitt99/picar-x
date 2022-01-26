@@ -5,6 +5,6 @@ if check_rpi():
     from .pin import Pin as Pin
 else:
     # TODO: logger?
-    print('Not running on RPI! Importing dummy drivers.')
+    print("Not running on RPI! Importing dummy drivers.")
     from .i2c_dummy import I2C as I2C
     from .pin_dummy import Pin as Pin

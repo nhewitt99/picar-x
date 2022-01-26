@@ -1,6 +1,7 @@
 from .pin_dummy import Pin as Pin_dummy
 import RPi.GPIO as GPIO
 
+
 class Pin(Pin_dummy):
     OUT = GPIO.OUT
     IN = GPIO.IN
@@ -16,16 +17,16 @@ class Pin(Pin_dummy):
     }
 
     _dict_2 = {
-        "D0":  17,
-        "D1":   4, # Changed
-        "D2":  27,
-        "D3":  22,
-        "D4":  23,
-        "D5":  24,
-        "D6":  25, # Removed
-        "D7":   4, # Removed
-        "D8":   5, # Removed
-        "D9":   6,
+        "D0": 17,
+        "D1": 4,  # Changed
+        "D2": 27,
+        "D3": 22,
+        "D4": 23,
+        "D5": 24,
+        "D6": 25,  # Removed
+        "D7": 4,  # Removed
+        "D8": 5,  # Removed
+        "D9": 6,
         "D10": 12,
         "D11": 13,
         "D12": 19,
@@ -33,13 +34,13 @@ class Pin(Pin_dummy):
         "D14": 26,
         "D15": 20,
         "D16": 21,
-        "SW":  25, # Changed
+        "SW": 25,  # Changed
         "LED": 26,
         "BOARD_TYPE": 12,
         "RST": 16,
         "BLEINT": 13,
         "BLERST": 20,
-        "MCURST":  5, # Changed
+        "MCURST": 5,  # Changed
     }
 
     def __init__(self, *value):
@@ -70,16 +71,16 @@ class Pin(Pin_dummy):
                 self._pin = self.dict()[pin]
             except Exception as e:
                 print(e)
-                self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+                self._error("Pin should be in %s, not %s" % (self._dict.keys(), pin))
         elif isinstance(pin, int):
             self._pin = pin
         else:
-            self._error('Pin should be in %s, not %s' % (self._dict.keys(), pin))
+            self._error("Pin should be in %s, not %s" % (self._dict.keys(), pin))
 
         self._value = 0
         self.init(mode, pull=setup)
         # self._info("Pin init finished.")
-        
+
     def check_board_type(self):
         type_pin = self.dict()["BOARD_TYPE"]
         GPIO.setup(type_pin, GPIO.IN)
@@ -105,7 +106,9 @@ class Pin(Pin_dummy):
                 self._dict = _dict
             else:
                 self._error(
-                    'argument should be a pin dictionary like {"my pin": ezblock.Pin.cpu.GPIO17}, not %s' % _dict)
+                    'argument should be a pin dictionary like {"my pin": ezblock.Pin.cpu.GPIO17}, not %s'
+                    % _dict
+                )
 
     def value(self, *value):
         if len(value) == 0:
@@ -129,13 +132,16 @@ class Pin(Pin_dummy):
 
     def irq(self, handler=None, trigger=None, bouncetime=200):
         self.mode(self.IN)
-        GPIO.add_event_detect(self._pin, trigger, callback=handler, bouncetime=bouncetime)
+        GPIO.add_event_detect(
+            self._pin, trigger, callback=handler, bouncetime=bouncetime
+        )
 
 
 if __name__ == "__main__":
     import time
+
     mcu_reset = Pin("MCURST")
     mcu_reset.off()
     time.sleep(0.001)
-    mcu_reset.on() 
-    time.sleep(0.01) 
+    mcu_reset.on()
+    time.sleep(0.01)
