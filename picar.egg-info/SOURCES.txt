@@ -1,7 +1,0 @@
-LICENSE
-setup.py
-picar.egg-info/PKG-INFO
-picar.egg-info/SOURCES.txt
-picar.egg-info/dependency_links.txt
-picar.egg-info/requires.txt
-picar.egg-info/top_level.txt
