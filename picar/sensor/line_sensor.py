@@ -54,7 +54,10 @@ class LineSensor(Sensor):
     # Combine three confidences into a direction
     def direction(self, values):
         total = sum(values)
-        return -1 * (values[0] / total) + 1 * (values[2] / total)
+        if total == 0:
+            return 0
+        else:
+            return -1 * (values[0] / total) + 1 * (values[2] / total)
 
     # Outward-facing function that returns a line position
     def detect_line(self):

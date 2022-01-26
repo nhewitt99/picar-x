@@ -1,1 +1,1 @@
-from line_controller import LineController
+from .line_controller import LineController

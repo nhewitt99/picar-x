@@ -24,7 +24,7 @@ class I2C(object):
         pass
 
     def _i2c_read_byte(self, addr):
-        return bytes(0)
+        return 0
 
     def _i2c_read_i2c_block_data(self, addr, reg, num):
         return []
