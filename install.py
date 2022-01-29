@@ -3,16 +3,16 @@ import os, sys
 
 errors = []
 
-avaiable_options = ['-h', '--help', '--no-dep']
+avaiable_options = ["-h", "--help", "--no-dep"]
 
-usage = '''
+usage = """
 Usage:
     sudo python3 install.py [option]
 
 Options:
                --no-dep    Do not download dependencies
     -h         --help      Show this help text and exit
-'''
+"""
 
 APT_INSTALL_LIST = [
     "python3-pip",
@@ -36,10 +36,9 @@ APT_INSTALL_LIST = [
     "libhdf5-103",
     "libqtwebkit4",
     "python3-pyqt5",
-
     "python3-flask",
     "libzbar0",
-    #"libttspico-utils",
+    # "libttspico-utils",
 ]
 
 PIP_INSTALL_LIST = [
@@ -51,8 +50,9 @@ PIP_INSTALL_LIST = [
     "pyzbar",
     "https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_armv7l.whl",
     "pillow",
-    #"opencv-python",
+    # "opencv-python",
 ]
+
 
 def install():
     options = []
@@ -69,14 +69,14 @@ def install():
     # print("EzBlock service install process starts")
     print("Install dependency")
     if "--no-dep" not in options:
-        do(msg="update apt-get",
-            cmd='run_command("sudo apt-get update")')
+        do(msg="update apt-get", cmd='run_command("sudo apt-get update")')
         for dep in APT_INSTALL_LIST:
-            do(msg="install %s"%dep,
-                cmd='run_command("sudo apt-get install %s -y")'%dep)
+            do(
+                msg="install %s" % dep,
+                cmd='run_command("sudo apt-get install %s -y")' % dep,
+            )
         for dep in PIP_INSTALL_LIST:
-            do(msg="install %s"%dep,
-                cmd='run_command("sudo pip3 install %s")'%dep)
+            do(msg="install %s" % dep, cmd='run_command("sudo pip3 install %s")' % dep)
 
     # do(msg="unpackaging swift",
     #     cmd='run_command("tar zxvf ./lib/swift-4.1.3-RPi23-RaspbianStretch.tgz")')
@@ -86,26 +86,17 @@ def install():
     #     cmd='run_command("sudo rm -rf usr")')
 
     print("Setup interfaces")
-    do(msg="turn on I2C",
-        cmd='Config().set("dtparam=i2c_arm", "on")')
-    do(msg="Add I2C module",
-        cmd='Modules().set("i2c-dev")')
-    do(msg="turn on SPI",
-        cmd='Config().set("dtparam=spi", "on")')
+    do(msg="turn on I2C", cmd='Config().set("dtparam=i2c_arm", "on")')
+    do(msg="Add I2C module", cmd='Modules().set("i2c-dev")')
+    do(msg="turn on SPI", cmd='Config().set("dtparam=spi", "on")')
     # do(msg="Add SPI module",
     #     cmd='Modules().set("i2c-dev")')
-    do(msg="turn on one-wire",
-        cmd='Config().set("dtoverlay", "w1-gpio")')
-    do(msg="turn on Lirc",
-        cmd='Config().set("dtoverlay=lirc-rpi:gpio_in_pin", "26")')
-    do(msg="turn on Uart",
-        cmd='Config().set("enable_uart", "1")')
-    do(msg="set gpu memory to 128",
-        cmd='Config().set("gpu_mem", "128")')
-    do(msg="enable camera",
-        cmd='Config().set("start_x", "1")')
-    do(msg="turn off serial terminal",
-        cmd='Cmdline().remove("console=serial0")')
+    do(msg="turn on one-wire", cmd='Config().set("dtoverlay", "w1-gpio")')
+    do(msg="turn on Lirc", cmd='Config().set("dtoverlay=lirc-rpi:gpio_in_pin", "26")')
+    do(msg="turn on Uart", cmd='Config().set("enable_uart", "1")')
+    do(msg="set gpu memory to 128", cmd='Config().set("gpu_mem", "128")')
+    do(msg="enable camera", cmd='Config().set("start_x", "1")')
+    do(msg="turn off serial terminal", cmd='Cmdline().remove("console=serial0")')
 
     # print("Setup ezblock service")
     # do(msg="copy ezblock file",
@@ -120,7 +111,6 @@ def install():
     #     cmd='run_command("sudo chmod +x /usr/bin/ezblock-service")')
     # do(msg="copy libezblock file",
     #     cmd='run_command("sudo cp ./lib/libezblock.so /usr/local/lib/python3.7/dist-packages")')
-    
 
     # print("Setup ezblock-reset service")
     # do(msg="copy ezblock-reset file",
@@ -174,28 +164,30 @@ def install():
         print("\n\nError happened in install process:")
         for error in errors:
             print(error)
-        print("Try to fix it yourself, or contact service@sunfounder.com with this message")
+        print(
+            "Try to fix it yourself, or contact service@sunfounder.com with this message"
+        )
         sys.exit(1)
 
 
 def test():
-    do(msg="install clang",
-        cmd='run_command("sudo apt-get install clang -y")')
+    do(msg="install clang", cmd='run_command("sudo apt-get install clang -y")')
+
 
 def cleanup():
-    do(msg="cleanup",
-        cmd='run_command("sudo rm -rf usr ezblock.egg-info")')
+    do(msg="cleanup", cmd='run_command("sudo rm -rf usr ezblock.egg-info")')
+
 
 class Modules(object):
-    ''' 
-        To setup /etc/modules
-    '''
+    """
+    To setup /etc/modules
+    """
 
     def __init__(self, file="/etc/modules"):
         self.file = file
-        with open(self.file, 'r') as f:
+        with open(self.file, "r") as f:
             self.configs = f.read()
-        self.configs = self.configs.split('\n')
+        self.configs = self.configs.split("\n")
 
     def remove(self, expected):
         for config in self.configs:
@@ -220,24 +212,25 @@ class Modules(object):
 
     def write_file(self):
         try:
-            config = '\n'.join(self.configs)
+            config = "\n".join(self.configs)
             # print(config)
-            with open(self.file, 'w') as f:
+            with open(self.file, "w") as f:
                 f.write(config)
             return 0, config
         except Exception as e:
             return -1, e
 
+
 class Config(object):
-    ''' 
-        To setup /boot/config.txt
-    '''
+    """
+    To setup /boot/config.txt
+    """
 
     def __init__(self, file="/boot/config.txt"):
         self.file = file
-        with open(self.file, 'r') as f:
+        with open(self.file, "r") as f:
             self.configs = f.read()
-        self.configs = self.configs.split('\n')
+        self.configs = self.configs.split("\n")
 
     def remove(self, expected):
         for config in self.configs:
@@ -253,38 +246,39 @@ class Config(object):
                 have_excepted = True
                 tmp = name
                 if value != None:
-                    tmp += '=' + value
+                    tmp += "=" + value
                 self.configs[i] = tmp
                 break
 
         if not have_excepted:
             tmp = name
             if value != None:
-                tmp += '=' + value
+                tmp += "=" + value
             self.configs.append(tmp)
         return self.write_file()
 
     def write_file(self):
         try:
-            config = '\n'.join(self.configs)
+            config = "\n".join(self.configs)
             # print(config)
-            with open(self.file, 'w') as f:
+            with open(self.file, "w") as f:
                 f.write(config)
             return 0, config
         except Exception as e:
             return -1, e
 
+
 class Cmdline(object):
-    ''' 
-        To setup /boot/cmdline.txt
-    '''
+    """
+    To setup /boot/cmdline.txt
+    """
 
     def __init__(self, file="/boot/cmdline.txt"):
         self.file = file
-        with open(self.file, 'r') as f:
+        with open(self.file, "r") as f:
             cmdline = f.read()
         self.cmdline = cmdline.strip()
-        self.cmds = self.cmdline.split(' ')
+        self.cmds = self.cmdline.split(" ")
 
     def remove(self, expected):
         for cmd in self.cmds:
@@ -294,9 +288,9 @@ class Cmdline(object):
 
     def write_file(self):
         try:
-            cmdline = ' '.join(self.cmds)
+            cmdline = " ".join(self.cmds)
             # print(cmdline)
-            with open(self.file, 'w') as f:
+            with open(self.file, "w") as f:
                 f.write(cmdline)
             return 0, cmdline
         except Exception as e:
@@ -305,9 +299,11 @@ class Cmdline(object):
 
 def run_command(cmd=""):
     import subprocess
+
     p = subprocess.Popen(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    result = p.stdout.read().decode('utf-8')
+        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
+    result = p.stdout.read().decode("utf-8")
     status = p.poll()
     # print(result)
     # print(status)
@@ -315,16 +311,16 @@ def run_command(cmd=""):
 
 
 def do(msg="", cmd=""):
-    print(" - %s..." % (msg), end='\r')
-    print(" - %s... " % (msg), end='')
+    print(" - %s..." % (msg), end="\r")
+    print(" - %s... " % (msg), end="")
     status, result = eval(cmd)
     # print(status, result)
     if status == 0 or status == None or result == "":
-        print('Done')
+        print("Done")
     else:
-        print('Error')
-        errors.append("%s error:\n  Status:%s\n  Error:%s" %
-                      (msg, status, result))
+        print("Error")
+        errors.append("%s error:\n  Status:%s\n  Error:%s" % (msg, status, result))
+
 
 if __name__ == "__main__":
     try:

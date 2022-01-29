@@ -1,6 +1,8 @@
 import sys
-sys.path.append(r'/home/pi/picar-x/lib')
+
+sys.path.append(r"/home/pi/picar-x/lib")
 from utils import reset_mcu
+
 reset_mcu()
 
 from picarx import Picarx
@@ -9,14 +11,14 @@ from pin import Pin
 
 if __name__ == "__main__":
     try:
-        trig_pin = Pin("D2") 
+        trig_pin = Pin("D2")
         echo_pin = Pin("D3")
         sonar = Ultrasonic(trig_pin, echo_pin)
         px = Picarx()
         px.forward(30)
         while True:
             distance = sonar.read()
-            print("distance: ",distance)
+            print("distance: ", distance)
             if distance > 0 and distance < 300:
                 if distance < 25:
                     px.set_dir_servo_angle(-35)
@@ -24,5 +26,3 @@ if __name__ == "__main__":
                     px.set_dir_servo_angle(0)
     finally:
         px.forward(0)
-
-
