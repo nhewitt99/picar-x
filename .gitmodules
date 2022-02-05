@@ -1,0 +1,3 @@
+[submodule "picar/rossros"]
+	path = picar/rossros
+	url = https://github.com/rlhatton/RossROS.git
