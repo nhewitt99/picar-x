@@ -15,13 +15,13 @@ TERM_BUS = Bus()
 
 
 def handler(signum, frame):
-    '''
+    """
     Can't figure out why this doesn't work :(
     It doesn't get called with the first ctrl+c, only the second,
     and the written value doesn't propogate into the threads...
-    '''
+    """
     global TERM_BUS
-    print('SIGINT caught!!')
+    print("SIGINT caught!!")
     TERM_BUS.write("SIGINT")
 
 
@@ -39,7 +39,7 @@ def main():
     #    consume_line = Consumer(lc.forward, sensor_bus, term_bus, name="Controller")
 
     def dummy_sense():
-        x = uniform(-1,1)
+        x = uniform(-1, 1)
         print(f"Sensor output: {x:.3f}")
         return x
 

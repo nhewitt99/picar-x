@@ -123,7 +123,6 @@ class Picarx(object):
         # global dir_cal_value
         self.dir_current_angle = value
         angle_value = value + self.dir_cal_value
-        print("angle_value:", angle_value)
         # print("set_dir_servo_angle_1:",angle_value)
         # print("set_dir_servo_angle_2:",dir_cal_value)
         self.dir_servo_pin.angle(angle_value)
@@ -198,7 +197,6 @@ class Picarx(object):
             if abs_current_angle > 40:
                 abs_current_angle = 40
             power_scale = (100 - abs_current_angle) / 100.0
-            print("power_scale:", power_scale)
             if (current_angle / abs_current_angle) > 0:
                 self.set_motor_speed(1, speed)
                 self.set_motor_speed(2, -1 * speed * power_scale)

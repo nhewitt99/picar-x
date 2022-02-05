@@ -1,10 +1,11 @@
-from picamera import PiCamera
 from time import sleep
 import numpy as np
 import cv2
 
 
 class LaneCamera:
+    from picamera import PiCamera
+
     """
     Class to estimate "lanes" i.e. tape
     Could add color heuristics later, but ignoring hue
@@ -14,7 +15,7 @@ class LaneCamera:
 
     def __init__(self):
         # TODO: this could throw exceptions, might want some error catching
-        self.cam = PiCamera()
+        self.cam = self.PiCamera()
         self.cam_setup()
 
         # Magic numbers from tutorials. Tune as needed.
